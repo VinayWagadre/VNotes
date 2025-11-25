@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1020251192780",
+    "project_id": "vnotes-app-12345",
+    "storage_bucket": "vnotes-app-12345.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1020251192780:android:25936d04c40d25bd6e7169",
+        "android_client_info": {
+          "package_name": "com.example.vnotes"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyChTWFWfHa3dFZjJ2WGDxpKNt_tK7YQlpU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
