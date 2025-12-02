@@ -23,15 +23,9 @@ class DefaultFirebaseOptions {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for ios - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
         return windows;
       case TargetPlatform.linux:
@@ -61,6 +55,24 @@ class DefaultFirebaseOptions {
     messagingSenderId: '1020251192780',
     projectId: 'vnotes-app-12345',
     storageBucket: 'vnotes-app-12345.firebasestorage.app',
+  );
+
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyA1SX-PXO1ldg8fUT_d4dcPlJOaol17UGs',
+    appId: '1:1020251192780:ios:60d1c2a5066ea20b6e7169',
+    messagingSenderId: '1020251192780',
+    projectId: 'vnotes-app-12345',
+    storageBucket: 'vnotes-app-12345.firebasestorage.app',
+    iosBundleId: 'com.example.vnotes',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyA1SX-PXO1ldg8fUT_d4dcPlJOaol17UGs',
+    appId: '1:1020251192780:ios:60d1c2a5066ea20b6e7169',
+    messagingSenderId: '1020251192780',
+    projectId: 'vnotes-app-12345',
+    storageBucket: 'vnotes-app-12345.firebasestorage.app',
+    iosBundleId: 'com.example.vnotes',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(

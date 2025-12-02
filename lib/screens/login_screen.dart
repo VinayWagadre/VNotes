@@ -1,4 +1,4 @@
-import 'package:firebase_auth/firebase_auth.dart'; // 1. Added Firebase import
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -9,139 +9,229 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  // We'll use this to toggle between Login and Register
   bool _isLogin = true;
-
-  // Form key for validation
   final _formKey = GlobalKey<FormState>();
-
-  // 2. Controllers are defined here, at the class level
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _isLoading = false;
+  bool _obscurePassword = true;
 
   @override
   void dispose() {
-    // 3. And disposed of here
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  // 4. This is the complete function to handle auth
   Future<void> _submitAuthForm() async {
-    // Check if the form is valid
     if (!_formKey.currentState!.validate()) {
       return;
     }
 
-    // Get the values from the controllers
+    setState(() => _isLoading = true);
+
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
     try {
-      // Check if we are in Login or Register mode
       if (_isLogin) {
-        // Login mode
         await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: email,
           password: password,
         );
       } else {
-        // Register mode
         await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: email,
           password: password,
         );
       }
-      // AuthGate stream will handle navigation
-
     } on FirebaseAuthException catch (error) {
-      // Handle errors
       String message = 'An error occurred. Please check your credentials.';
       if (error.message != null) {
         message = error.message!;
       }
 
-      // Show a snackbar with the error message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: Theme.of(context).colorScheme.error,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message),
+            backgroundColor: Colors.red.shade400,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_isLogin ? 'Login' : 'Register'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Email Text Field
-              TextFormField(
-                controller: _emailController, // Use the class controller
-                keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty || !value.contains('@')) {
-                    return 'Please enter a valid email';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
+      backgroundColor: Colors.grey.shade50,
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // App Icon/Logo
+                  Container(
+                    height: 100,
+                    width: 100,
+                    decoration: BoxDecoration(
+                      color: Colors.blue.shade600,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.note_alt_outlined, size: 50, color: Colors.white),
+                  ),
+                  const SizedBox(height: 24),
 
-              // Password Text Field
-              TextFormField(
-                controller: _passwordController, // Use the class controller
-                obscureText: true, // Hides password
-                decoration: const InputDecoration(
-                  labelText: 'Password',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty || value.length < 6) {
-                    return 'Password must be at least 6 characters';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 20),
+                  // Title
+                  Text(
+                    _isLogin ? 'Welcome Back' : 'Create Account',
+                    style: const TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _isLogin ? 'Sign in to continue' : 'Sign up to get started',
+                    style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 40),
 
-              // Login/Register Button
-              ElevatedButton(
-                onPressed: _submitAuthForm, // 5. Call the submit function
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(50), // Full width
-                ),
-                child: Text(_isLogin ? 'Login' : 'Register'),
-              ),
+                  // Email Field
+                  TextFormField(
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(
+                      labelText: 'Email',
+                      prefixIcon: const Icon(Icons.email_outlined),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.blue.shade600, width: 2),
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty || !value.contains('@')) {
+                        return 'Please enter a valid email';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
 
-              // Toggle Button
-              TextButton(
-                onPressed: () {
-                  setState(() {
-                    _isLogin = !_isLogin; // Flip between login and register
-                  });
-                },
-                child: Text(
-                  _isLogin
-                      ? 'Don\'t have an account? Register'
-                      : 'Already have an account? Login',
-                ),
+                  // Password Field
+                  TextFormField(
+                    controller: _passwordController,
+                    obscureText: _obscurePassword,
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      prefixIcon: const Icon(Icons.lock_outline),
+                      suffixIcon: IconButton(
+                        icon: Icon(_obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined),
+                        onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.blue.shade600, width: 2),
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty || value.length < 6) {
+                        return 'Password must be at least 6 characters';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Login/Register Button
+                  ElevatedButton(
+                    onPressed: _isLoading ? null : _submitAuthForm,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue.shade600,
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size.fromHeight(56),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                        : Text(
+                      _isLogin ? 'Login' : 'Register',
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Toggle Button
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        _isLogin ? "Don't have an account? " : "Already have an account? ",
+                        style: TextStyle(color: Colors.grey.shade600),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            _isLogin = !_isLogin;
+                          });
+                        },
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.blue.shade600,
+                          padding: EdgeInsets.zero,
+                        ),
+                        child: Text(
+                          _isLogin ? 'Register' : 'Login',
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
